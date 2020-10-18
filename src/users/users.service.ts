@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { SearchUserDto } from './dto/SearchUserDto';
 import { SignUpDto } from './dto/SignUpDto';
 import { UserEntity } from './entities/users.entity';
 
@@ -13,7 +14,7 @@ export class UsersService {
     ) {}
 
     async signup(dto: SignUpDto){
-        const { username, password, email } = dto;
+        const { email } = dto;
         const existingUser = await this.userRepository.findOne({ email });
         if(existingUser){
             throw new BadRequestException(`Email Already Exists`);
@@ -22,5 +23,13 @@ export class UsersService {
         return {
             status : 'ok'
         };
+    }
+
+    async getUser(params: SearchUserDto){
+        const requiredUser = await this.userRepository.findOne({ username: params.username });
+        if(!requiredUser){
+            throw new BadRequestException(`No Such User is there!`);
+        }
+        return requiredUser;
     }
 }
